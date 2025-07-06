@@ -138,6 +138,13 @@
   const pageSize = 10;
   let currentPage = 1;
 
+  function formatRupiah(angka) {
+    const number = parseInt(angka);
+    if (isNaN(number)) return "Rp0,00";
+
+    return 'Rp' + number.toLocaleString('id-ID') + ',00';
+  }
+
   function renderTablePage(page = 1) {
     const tableBody = $('#laundryTable tbody');
     tableBody.empty();
@@ -156,7 +163,7 @@
         <tr>
           <td>${start + index + 1}</td>
           <td>${item.nama || '-'}</td>
-          <td>Rp ${item.harga || '0'}</td>
+          <td>${formatRupiah(item.harga)}</td>
           <td>${item.jumlah || '0'}</td>
           <td>${item.berat || '0'}</td>
           <td>${item.layanan || '-'}</td>

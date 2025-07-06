@@ -80,10 +80,7 @@
     }
   </style>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
@@ -100,7 +97,7 @@
       <tr>
         <th>No</th>
         <th>Nama</th>
-        <th>Harga (Rupiah)</th>
+        <th>Harga (Rp)</th>
         <th>Jumlah (PCS)</th>
         <th>Berat (KG)</th>
         <th>Layanan</th>
@@ -111,7 +108,7 @@
       </tr>
     </thead>
     <tbody>
-      <!-- Data akan diisi dinamis -->
+      <!-- Data dinamis -->
     </tbody>
   </table>
 
@@ -123,7 +120,6 @@
 </div>
 
 <script>
-  // Konfigurasi Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyA0nLjuJd1cah3yHkcWLNvmqPA5cAnSOjI",
     authDomain: "tongsampah1-a.firebaseapp.com",
@@ -159,15 +155,15 @@
       const row = `
         <tr>
           <td>${start + index + 1}</td>
-          <td>${item.nama || 'N/A'}</td>
-          <td>${item.harga || 'N/A'}</td>
-          <td>${item.jumlah || 'N/A'}</td>
-          <td>${item.berat || 'N/A'}</td>
-          <td>${item.layanan || 'N/A'}</td>
-          <td>${item.tanggal || 'N/A'}</td>
-          <td>${item.tanggalPengambilan || 'N/A'}</td>
-          <td>${item.code || 'N/A'}</td>
-          <td>${item.status || 'Pengerjaan'}</td>
+          <td>${item.nama || '-'}</td>
+          <td>Rp ${item.harga || '0'}</td>
+          <td>${item.jumlah || '0'}</td>
+          <td>${item.berat || '0'}</td>
+          <td>${item.layanan || '-'}</td>
+          <td>${item.tanggal || '-'}</td>
+          <td>${item.tanggalPengambilan || '-'}</td>
+          <td>${item.code || '-'}</td>
+          <td>${item.status || 'On Proses'}</td>
         </tr>
       `;
       tableBody.append(row);
@@ -178,45 +174,43 @@
 
   function renderPagination() {
     const totalPages = Math.ceil(allData.length / pageSize);
-    let paginationHtml = '';
+    let html = '';
 
     for (let i = 1; i <= totalPages; i++) {
       const startNum = (i - 1) * pageSize + 1;
       const endNum = Math.min(i * pageSize, allData.length);
-      const activeClass = (i === currentPage) ? 'active' : '';
-      paginationHtml += `<button class="pagination-btn ${activeClass}" data-page="${i}">${startNum}-${endNum}</button>`;
+      const active = (i === currentPage) ? 'active' : '';
+      html += `<button class="pagination-btn ${active}" data-page="${i}">${startNum}-${endNum}</button>`;
     }
 
-    $('#pagination-controls').html(paginationHtml);
+    $('#pagination-controls').html(html);
   }
 
   function loadData() {
-    database.ref('databasee')
-      .orderByChild('createdAt')
-      .once('value', snapshot => {
+    database.ref('databasee').once('value')
+      .then(snapshot => {
         const dataArr = [];
-        snapshot.forEach(childSnapshot => {
-          const item = childSnapshot.val();
-          item.key = childSnapshot.key;
-          if (!item.createdAt) item.createdAt = 0;
+        snapshot.forEach(child => {
+          const item = child.val();
+          item.key = child.key;
           dataArr.push(item);
         });
 
-        allData = dataArr.reverse(); // Urutkan terbaru ke atas
-        currentPage = 1;
-        renderTablePage(currentPage);
+        allData = dataArr.reverse();
+        renderTablePage(currentPage = 1);
       })
-      .catch(error => {
-        console.error('Gagal memuat data:', error);
+      .catch(err => {
+        console.error('Gagal memuat:', err);
         $('#error-message').show();
       });
   }
 
   $(document).on('click', '.pagination-btn', function () {
     const page = parseInt($(this).data('page'));
-    if (page === currentPage) return;
-    currentPage = page;
-    renderTablePage(currentPage);
+    if (page !== currentPage) {
+      currentPage = page;
+      renderTablePage(page);
+    }
   });
 
   $(document).ready(() => {

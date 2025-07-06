@@ -157,10 +157,8 @@
       return;
     }
 
-    const totalData = allData.length;
-
     pageData.forEach((item, index) => {
-      const nomorUrut = totalData - (start + index);
+      const nomorUrut = start + index + 1;
       const row = `
         <tr>
           <td>${nomorUrut}</td>
@@ -196,17 +194,16 @@
   }
 
   function loadData() {
-    database.ref('databasee').once('value')
+    database.ref('databasee').orderByChild('createdAt').once('value')
       .then(snapshot => {
         const dataArr = [];
         snapshot.forEach(child => {
           const item = child.val();
           item.key = child.key;
-          dataArr.push(item);
+          dataArr.unshift(item); // unshift agar data terbaru di depan
         });
 
-        // Urutkan berdasarkan createdAt (jika ada) atau pakai urutan Firebase lalu dibalik
-        allData = dataArr.reverse();
+        allData = dataArr;
         renderTablePage(currentPage = 1);
       })
       .catch(err => {

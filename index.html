@@ -244,6 +244,14 @@
       });
   }
 
+  // Event listener untuk tombol "Cari"
+  $(document).on('click', '#search-btn', function() {
+    const name = $('#search-name').val();
+    const code = $('#search-code').val();
+    searchData(name, code);
+  });
+
+  // Fungsi untuk mencari data berdasarkan nama dan kode
   function searchData(name, code) {
     const filteredData = allData.filter(item => 
       (name ? item.nama.toLowerCase().includes(name.toLowerCase()) : true) &&
@@ -253,9 +261,16 @@
     if (filteredData.length === 0) {
       $('#laundryTable tbody').html('<tr><td colspan="10">Data tidak ditemukan</td></tr>');
     } else {
-      allData = filteredData;
-      renderTablePage(1);
+      allData = filteredData; // Update data dengan hasil pencarian
+      renderTablePage(1); // Render halaman pertama setelah pencarian
     }
   }
 
-  $(document).on
+  $(document).ready(function() {
+    loadData(); // Memuat data saat halaman pertama kali dibuka
+  });
+
+</script>
+
+</body>
+</html>

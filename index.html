@@ -26,6 +26,30 @@
       color: #333;
     }
 
+    .search-form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .search-form input {
+      padding: 10px;
+      margin: 0 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 200px;
+    }
+
+    .search-form button {
+      padding: 10px 20px;
+      border: 1px solid #3efa41;
+      border-radius: 5px;
+      background-color: #3efa41;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -88,6 +112,14 @@
 
 <div class="container">
   <h1>Data Pelanggan Laundry</h1>
+
+  <!-- Form Pencarian -->
+  <div class="search-form">
+    <input type="text" id="search-name" placeholder="Masukkan Nama" />
+    <input type="text" id="search-code" placeholder="Masukkan Kode Transaksi" />
+    <button id="search-btn">Cari</button>
+  </div>
+
   <div class="error-message" id="error-message" style="display:none;">
     Gagal memuat data. Silakan cek konsol.
   </div>
@@ -212,18 +244,18 @@
       });
   }
 
-  $(document).on('click', '.pagination-btn', function () {
-    const page = parseInt($(this).data('page'));
-    if (page !== currentPage) {
-      currentPage = page;
-      renderTablePage(page);
+  function searchData(name, code) {
+    const filteredData = allData.filter(item => 
+      (name ? item.nama.toLowerCase().includes(name.toLowerCase()) : true) &&
+      (code ? item.code.toLowerCase().includes(code.toLowerCase()) : true)
+    );
+
+    if (filteredData.length === 0) {
+      $('#laundryTable tbody').html('<tr><td colspan="10">Data tidak ditemukan</td></tr>');
+    } else {
+      allData = filteredData;
+      renderTablePage(1);
     }
-  });
+  }
 
-  $(document).ready(() => {
-    loadData();
-  });
-</script>
-
-</body>
-</html>
+  $(document).on

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DATA PELANGGAN LAUNDRY</title>
   <style>
+    /* Styling untuk halaman */
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -102,6 +103,13 @@
       border-top: 1px solid #ddd;
       padding-top: 15px;
     }
+
+    .no-results {
+      color: #a00;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
   </style>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -145,6 +153,10 @@
   </table>
 
   <div id="pagination-controls"></div>
+
+  <div class="no-results" id="no-results-message" style="display:none;">
+    <p>Data tidak ditemukan untuk pencarian yang Anda masukkan.</p>
+  </div>
 
   <div class="footer-note">
     <p>Jika dalam 30 hari tidak diambil, maka segala bentuk kehilangan bukan tanggung jawab kami!</p>
@@ -225,25 +237,68 @@
     $('#pagination-controls').html(html);
   }
 
-  function loadData() {
-    database.ref('databasee').orderByChild('createdAt').once('value')
-      .then(snapshot => {
-        const dataArr = [];
-        snapshot.forEach(child => {
-          const item = child.val();
-          item.key = child.key;
-          dataArr.unshift(item); // unshift agar data terbaru di depan
+  function searchData(name, code) {
+    let filteredData = [];
+
+    if (code) {
+      // Jika kode transaksi dimasukkan, cari data berdasarkan kode
+      database.ref('databasee').child(code).once('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          filteredData.push(data);
+        } else {
+          showNoResultsMessage();
+        }
+      });
+    } else if (name) {
+      // Jika nama dimasukkan, cari data yang sesuai
+      database.ref('databasee').once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const data = childSnapshot.val();
+          if (data.nama && data.nama.toLowerCase().includes(name.toLowerCase())) {
+            filteredData.push(data);
+          }
         });
 
-        allData = dataArr;
-        renderTablePage(currentPage = 1);
-      })
-      .catch(err => {
-        console.error('Gagal memuat:', err);
-        $('#error-message').show();
+        if (filteredData.length === 0) {
+          showNoResultsMessage();
+        } else {
+          hideNoResultsMessage();
+        }
       });
+    } else {
+      // Jika tidak ada input pencarian
+      database.ref('databasee').once('value', (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          filteredData.push(childSnapshot.val());
+        });
+        hideNoResultsMessage();
+      });
+    }
+
+    allData = filteredData;
+    renderTablePage(currentPage);
   }
 
-  // Fungsi untuk mencari data berdasarkan nama dan kode
-  function searchData(name, code) {
-    const filteredData = allData
+  function showNoResultsMessage() {
+    $('#no-results-message').show();
+    $('#laundryTable').hide();
+  }
+
+  function hideNoResultsMessage() {
+    $('#no-results-message').hide();
+    $('#laundryTable').show();
+  }
+
+  $(document).ready(function() {
+    // Pencarian ketika tombol 'Cari' di klik
+    $('#search-btn').click(function() {
+      const name = $('#search-name').val();
+      const code = $('#search-code').val();
+      searchData(name, code);
+    });
+  });
+
+</script>
+</body>
+</html>

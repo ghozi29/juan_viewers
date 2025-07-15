@@ -248,10 +248,4 @@
   function searchData(name, code) {
     const filteredData = allData.filter(item => 
       (name ? item.nama.toLowerCase().includes(name.toLowerCase()) : true) &&
-      (code ? item.code.toLowerCase().includes(code.toLowerCase()) : true)
-    );
-
-    allData = filteredData; // Update data dengan hasil pencarian
-    renderTablePage(1); // Render halaman pertama setelah pencarian
-  }
-
+      (code ? item.code.toLowerCase().includes
